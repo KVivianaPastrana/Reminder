@@ -4,7 +4,7 @@ public class MedicineDTO {
 
     private int medicineId;
     private String medicineName;
-    private boolean status;
+    private Boolean status;
 
     public MedicineDTO(int medicineId) {
         this.medicineId = medicineId;
@@ -29,11 +29,11 @@ public class MedicineDTO {
         this.medicineName = medicineName;
     }
 
-    public boolean isStatus() {
+    public Boolean getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 }

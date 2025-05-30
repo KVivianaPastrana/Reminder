@@ -19,21 +19,21 @@ public class Medicin {
     private String medicineName;
 
     @Column(name = "status")
-    private boolean status;
+    private Boolean status;
     public Medicin(){
     }
-    public Medicin(int medicineId, String medicineName, boolean status) {               
+    public Medicin(Integer medicineId, String medicineName, Boolean status) {               
         this.medicineId = medicineId;
         this.medicineName = medicineName;
         this.status = status;           
 
     }
 
-    public int getMedicineId() {        
+    public Integer getMedicineId() {        
         return medicineId;          
         }   
 
-        public void setMedicineId(int medicineId) {
+        public void setMedicineId(Integer  medicineId) {
             this.medicineId = medicineId;
         }       
         public String getMedicineName() {
@@ -44,11 +44,11 @@ public class Medicin {
             this.medicineName = medicineName;
         }       
 
-        public boolean getStatus() {
+        public Boolean getStatus() {
             return status;
         }
 
-        public void setStatus(boolean status) {
+        public void setStatus(Boolean status) {
             this.status = status;
         }
 }

@@ -13,10 +13,8 @@ package com.reminder.demo.DTO;
         }
         
         // Nuevo constructor para dos parámetros String
-        public ResponseDTO(String message, String data) {
-            this.message = message;
-            this.success = true; // Asumimos que es exitoso por defecto
-            this.data = data;
+        public ResponseDTO() {
+           
         }
     
     // Getters y setters

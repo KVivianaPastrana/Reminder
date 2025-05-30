@@ -34,12 +34,21 @@ public class PatientController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-    @PostMapping
-    public ResponseEntity<Object> createPatient(@RequestBody PatientDTO patientDTO) {
-        ResponseDTO respuesta = patientService.save(patientService.convertToModel(patientDTO));
-        return new ResponseEntity<>(respuesta, HttpStatus.OK);
-    }
+@PostMapping
+public ResponseEntity<ResponseDTO> createPatient(@RequestBody PatientDTO patientDTO) {
+    Patient patient = patientService.convertToModel(patientDTO);
+    Patient savedPatient = patientService.save(patient);
+    PatientDTO responseDto = patientService.convertToDTO(savedPatient);
+    
+    // Constructor corregido según tu ResponseDTO
+    ResponseDTO respuesta = new ResponseDTO(
+        "Paciente registrado exitosamente", // message (String)
+        true,                              // success (boolean)
+        responseDto                        // data (Object)
+    );
+    
+    return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+}
 
     @PutMapping("/{patientId}")
     public ResponseEntity<Object> updatePatient(@PathVariable int patientId, @RequestBody PatientDTO patientDTO) {

@@ -11,8 +11,6 @@ import com.reminder.demo.service.RecordService;
 import com.reminder.demo.model.Record;
 import com.reminder.demo.DTO.RecordDTO; 
 import com.reminder.demo.DTO.ResponseDTO;
-import com.reminder.demo.repository.Irecord;
-import com.reminder.demo.repository.Iprescription;
 @RestController
 @RequestMapping("/record")
 
@@ -34,12 +32,23 @@ public class RecordController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-@PostMapping
-public ResponseEntity<Object> createRecord(@RequestBody RecordDTO recordDTO) {
-    ResponseDTO respuesta = recordService.save(recordDTO);
-    return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
-}
 
+@PostMapping
+public ResponseEntity<ResponseDTO> createRecord(@RequestBody RecordDTO recordDTO) {
+    // Validar que las fechas no sean nulas
+    if (recordDTO.getEventDate() == null || recordDTO.getEventTime() == null) {
+        ResponseDTO response = new ResponseDTO(
+            "Fecha y hora son requeridas",
+            false,
+            null
+        );
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    
+    ResponseDTO response = recordService.save(recordDTO);
+    HttpStatus status = response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+    return new ResponseEntity<>(response, status);
+}
     @PutMapping("/{recordId}")
     public ResponseEntity<Object> updateRecord(@PathVariable int recordId, @RequestBody RecordDTO recordDTO) {
         ResponseDTO respuesta = recordService.updateRecord(recordId, recordDTO);

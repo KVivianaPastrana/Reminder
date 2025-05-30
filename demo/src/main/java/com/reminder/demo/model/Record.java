@@ -13,7 +13,7 @@ public class Record {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int recordId;
+    private Integer recordId;
 
     @ManyToOne
     @JoinColumn(name = "prescriptionId", referencedColumnName = "prescriptionId")
@@ -30,17 +30,21 @@ public class Record {
 
     public Record() {}
 
-    public Record(Prescription prescription, Date eventDate, Time eventTime, String eventType) {
+    public Record( Integer recordId, Prescription prescription, Date eventDate, Time eventTime, String eventType) {
+        this.recordId = recordId;
         this.prescription = prescription;
         this.eventDate = eventDate;
         this.eventTime = eventTime;
         this.eventType = eventType;
     }
 
-    public int getRecordId() {
+    public Integer getRecordId() {
         return recordId;
     }
 
+    public void setRecordId(Integer recordId) {
+        this.recordId = recordId;
+    }
     public Prescription getPrescription() {
         return prescription;
     }

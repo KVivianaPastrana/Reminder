@@ -1,8 +1,6 @@
 package com.reminder.demo.service;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import com.reminder.demo.model.Patient;
 import com.reminder.demo.repository.Ipatient;
@@ -27,54 +25,65 @@ public class PatientService {
     }
 
     public ResponseDTO deletePatient(int patientId) {
-        Optional<Patient> patient = getPatientById(patientId);
-        if (!patient.isPresent()) {
-            return new ResponseDTO(HttpStatus.OK.toString(), "Patient " + patientId + " not found");
-        }
+        try {
+            Optional<Patient> patient = getPatientById(patientId);
+            if (!patient.isPresent()) {
+                return new ResponseDTO("Patient not found", false, null);
+            }
 
-        patient.get().setEmail(null);
-        patientRepository.save(patient.get());
-        return new ResponseDTO(HttpStatus.OK.toString(), "Patient " + patientId + " deleted");
+            patient.get().setEmail(null);
+            patientRepository.save(patient.get());
+            return new ResponseDTO("Patient deleted", true, null);
+        } catch (Exception e) {
+            return new ResponseDTO("Error deleting patient", false, null);
+        }
     }
 
-public ResponseDTO save(Patient patient) {
-    Patient savedPatient = patientRepository.save(patient);
-    System.out.println("ID después de guardar: " + savedPatient.getPatientId()); // Debug
-    return new ResponseDTO(
-        HttpStatus.OK.toString(),
-        "Patient " + savedPatient.getPatientId() + " saved");
-}
+    public Patient save(Patient patient) {
+        return patientRepository.save(patient);
+    }
 
     public ResponseDTO updatePatient(int patientId, PatientDTO patientDTO) {
-        Optional<Patient> patient = getPatientById(patientId);
-        if (patient.isPresent()) {
-            Patient existingPatient = patient.get();
+        try {
+            // First find the existing patient
+            Optional<Patient> optionalPatient = patientRepository.findById(patientId);
+            if (!optionalPatient.isPresent()) {
+                return new ResponseDTO("Patient not found", false, null);
+            }
+
+            // Get the existing patient and update its fields
+            Patient existingPatient = optionalPatient.get();
             existingPatient.setName(patientDTO.getName());
-            patientRepository.save(existingPatient);
+            existingPatient.setEmail(patientDTO.getEmail());
+            
+            // Save the updated patient entity
+            Patient savedPatient = patientRepository.save(existingPatient);
+            
             return new ResponseDTO(
-        HttpStatus.OK.toString(),
-        "Patient " + patientId + " updated");
-
-        } else {
+                "Patient updated successfully",
+                true,
+                convertToDTO(savedPatient)
+            );
+        } catch (Exception e) {
             return new ResponseDTO(
-        HttpStatus.OK.toString(),
-        "Patient " + patientId + " not updated");
-
+                "Error updating patient: " + e.getMessage(),
+                false,
+                null
+            );
         }
     }
 
     public PatientDTO convertToDTO(Patient patient) {
         PatientDTO patientDTO = new PatientDTO();
-        
         patientDTO.setName(patient.getName());
+        patientDTO.setEmail(patient.getEmail());
         return patientDTO;
     }
 
     public Patient convertToModel(PatientDTO patientDTO) {
-    Patient patient = new Patient();
-    patient.setName(patientDTO.getName());
-    patient.setEmail(patientDTO.getEmail());  // Usa el email del DTO
-    return patient;
-}
-
+        Patient patient = new Patient();
+        patient.setName(patientDTO.getName());
+        patient.setEmail(patientDTO.getEmail());
+        return patient;
+    }
 }

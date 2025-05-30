@@ -34,10 +34,13 @@ public class MedicineController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createMedicine(@RequestBody MedicineDTO medicineDTO) {
-        ResponseDTO respuesta = medicineService.save(medicineService.convertToModel(medicineDTO));
-        return new ResponseEntity<>(respuesta, HttpStatus.OK);
-    }
+public ResponseEntity<Object> createMedicine(@RequestBody MedicineDTO medicineDTO) {
+    // Puedes usar cualquiera de estos:
+    ResponseDTO respuesta = medicineService.save(medicineDTO); // Opción preferida
+    // O:
+    // ResponseDTO respuesta = medicineService.saveEntity(medicineService.convertToModel(medicineDTO));
+    return new ResponseEntity<>(respuesta, HttpStatus.OK);
+}
 
     @PutMapping("/{medicineId}")
     public ResponseEntity<Object> updateMedicine(@PathVariable int medicineId, @RequestBody MedicineDTO medicineDTO) {

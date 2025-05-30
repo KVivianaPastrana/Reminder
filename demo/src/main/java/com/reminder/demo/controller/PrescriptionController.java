@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.time.LocalTime;
 import java.util.List;
 
 import com.reminder.demo.service.PrescriptionService;
@@ -29,11 +31,11 @@ public class PrescriptionController {
     private Imedicine medicineRepository;
     @Autowired
     private Iprescription prescriptionRepository;
+@GetMapping
+public ResponseEntity<List<PrescriptionDTO>> list() {
+    return ResponseEntity.ok(prescriptionService.getAllPrescriptionDTOs());
+}
 
-    @GetMapping
-    public List<Prescription> getAllPrescriptions() {
-        return prescriptionService.getAllPrescriptions();
-    }
 
     @GetMapping("/{prescriptionId}")
     public ResponseEntity<Object> getPrescriptionById(@PathVariable int prescriptionId) {
@@ -46,24 +48,32 @@ public class PrescriptionController {
     }
 
 @PostMapping
-public Prescription createPrescription(@RequestBody Prescription prescription) {
-    // Verifica que patient y medicine no sean null
-    if (prescription.getPatient() == null || prescription.getMedicine() == null) {
-        throw new RuntimeException("Patient y Medicine son obligatorios");
-    }
-    
-    // Opcional: Verifica si existen en la base de datos
-    Patient patient = patientRepository.findById(prescription.getPatient().getPatientId())
-        .orElseThrow(() -> new RuntimeException("Patient no encontrado"));
-    
-    Medicin medicine = medicineRepository.findById(prescription.getMedicine().getMedicineId())
-        .orElseThrow(() -> new RuntimeException("Medicine no encontrado"));
-    
-    prescription.setPatient(patient);
-    prescription.setMedicine(medicine);
-    
-    return prescriptionRepository.save(prescription);
+public ResponseEntity<?> createPrescription(@RequestBody PrescriptionDTO dto) {
+
+    // 1. Validaciones de existencia
+    Patient patient = patientRepository.findById(dto.getPatientId())
+            .orElse(null);
+    if (patient == null)
+        return ResponseEntity.badRequest().body("Paciente no existe");
+
+    Medicin medicine = medicineRepository.findById(dto.getMedicineId())
+            .orElse(null);
+    if (medicine == null)
+        return ResponseEntity.badRequest().body("Medicamento no existe");
+
+    // 2. Construir entidad
+    Prescription p = new Prescription();
+    p.setPatient(patient);
+    p.setMedicine(medicine);
+    p.setSchedule(dto.getSchedule());
+// HH:mm
+    p.setDose(dto.getDose());
+
+    Prescription saved = prescriptionRepository.save(p);
+    return ResponseEntity.status(HttpStatus.CREATED)
+                         .body(prescriptionService.convertToDTO(saved));
 }
+
     @PutMapping("/{prescriptionId}")
     public ResponseEntity<Object> updatePrescription(@PathVariable int prescriptionId, @RequestBody PrescriptionDTO prescriptionDTO) {
         ResponseDTO respuesta = prescriptionService.updatePrescription(prescriptionId, prescriptionDTO);

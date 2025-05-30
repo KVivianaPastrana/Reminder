@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Recordatorios Médicos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="time"],
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #2c3e50;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            background: white;
+        }
+        .active {
+            display: block;
+        }
+        .notification {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Recordatorios Médicos</h1>
+        
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'patients')">Pacientes</button>
+            <button class="tablinks" onclick="openTab(event, 'medicines')">Medicamentos</button>
+            <button class="tablinks" onclick="openTab(event, 'prescriptions')">Prescripciones</button>
+            <button class="tablinks" onclick="openTab(event, 'reminders')">Recordatorios</button>
+        </div>
+        
+        <!-- Sección de Pacientes -->
+        <div id="patients" class="tabcontent active">
+            <h2>Registro de Pacientes</h2>
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="patientName">Nombre completo:</label>
+                    <input type="text" id="patientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="patientEmail">Correo electrónico:</label>
+                    <input type="email" id="patientEmail" required>
+                </div>
+                <button onclick="registerPatient()">Registrar Paciente</button>
+            </div>
+            
+            <h2>Pacientes Registrados</h2>
+            <table id="patientsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Datos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Sección de Medicamentos -->
+        <div id="medicines" class="tabcontent">
+            <h2>Registro de Medicamentos</h2>
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="medicineName">Nombre del medicamento:</label>
+                    <input type="text" id="medicineName" required>
+                </div>
+                <button onclick="registerMedicine()">Registrar Medicamento</button>
+            </div>
+            
+            <h2>Medicamentos Registrados</h2>
+            <table id="medicinesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Datos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Sección de Prescripciones -->
+        <div id="prescriptions" class="tabcontent">
+            <h2>Asociar Medicamento a Paciente</h2>
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="prescriptionPatient">Paciente:</label>
+                    <select id="prescriptionPatient" required>
+                        <option value="">Seleccionar paciente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="prescriptionMedicine">Medicamento:</label>
+                    <select id="prescriptionMedicine" required>
+                        <option value="">Seleccionar medicamento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="prescriptionTime">Hora de toma:</label>
+                    <input type="time" id="prescriptionTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="prescriptionDose">Dosis:</label>
+                    <input type="text" id="prescriptionDose" placeholder="Ej: 1 tableta cada 8 horas" required>
+                </div>
+                <button onclick="createPrescription()">Asociar Medicamento</button>
+            </div>
+            
+            <h2>Prescripciones Activas</h2>
+            <table id="prescriptionsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Paciente</th>
+                        <th>Medicamento</th>
+                        <th>Hora</th>
+                        <th>Dosis</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Datos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Sección de Recordatorios -->
+        <div id="reminders" class="tabcontent">
+            <h2>Historial de Recordatorios</h2>
+            <table id="remindersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Paciente</th>
+                        <th>Medicamento</th>
+                        <th>Hora Programada</th>
+                        <th>Estado</th>
+                        <th>Fecha/Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Datos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Notificación flotante -->
+        <div id="notification" class="notification" style="display: none;"></div>
+    </div>
+
+    <script>
+
+        // Variables globales
+        let patients = [];
+        let medicines = [];
+        let prescriptions = [];
+        let reminders = [];
+        
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        await loadPatients();
+        await loadMedicines();
+        await loadPrescriptions();
+        loadReminders();
+    } catch (error) {
+        console.error("Error al cargar datos iniciales:", error);
+    }
+});
+        
+        // Funciones para cambiar pestañas
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        
+        // Mostrar notificación
+        function showNotification(message, type) {
+            const notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.className = "notification " + type;
+            notification.style.display = "block";
+            
+            setTimeout(() => {
+                notification.style.display = "none";
+            }, 5000);
+        }
+        
+        // ========== PACIENTES ========== //
+        async function loadPatients() {
+            try {
+                const response = await fetch('/patient');
+                patients = await response.json();
+                renderPatientsTable();
+                updatePatientDropdown();
+            } catch (error) {
+                showNotification("Error cargando pacientes: " + error, "error");
+            }
+        }
+        
+        async function registerPatient() {
+            const name = document.getElementById("patientName").value;
+            const email = document.getElementById("patientEmail").value;
+            
+            if (!name || !email) {
+                showNotification("Nombre y email son requeridos", "error");
+                return;
+            }
+            
+            try {
+                const response = await fetch('/patient', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                });
+                
+                if (response.ok) {
+                    showNotification("Paciente registrado exitosamente", "success");
+                    document.getElementById("patientName").value = "";
+                    document.getElementById("patientEmail").value = "";
+                    loadPatients();
+                } else {
+                    const error = await response.json();
+                    showNotification("Error: " + error.message, "error");
+                }
+            } catch (error) {
+                showNotification("Error de conexión", "error");
+            }
+        }
+        
+        function renderPatientsTable() {
+            const tbody = document.querySelector("#patientsTable tbody");
+            tbody.innerHTML = "";
+            
+            patients.forEach(patient => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${patient.patientId}</td>
+                    <td>${patient.name}</td>
+                    <td>${patient.email}</td>
+                    <td>
+                        <button onclick="deletePatient(${patient.id})">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // ========== MEDICAMENTOS ========== //
+        async function loadMedicines() {
+            try {
+                const response = await fetch('/medicine');
+                medicines = await response.json();
+                renderMedicinesTable();
+                updateMedicineDropdown();
+            } catch (error) {
+                showNotification("Error cargando medicamentos: " + error, "error");
+            }
+        }
+        
+        async function registerMedicine() {
+            const name = document.getElementById("medicineName").value;
+            
+            if (!name) {
+                showNotification("Nombre es requerido", "error");
+                return;
+            }
+            
+            try {
+                const response = await fetch('/medicine', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+        medicineName: name,
+        status: true
+    })
+});
+                if (response.ok) {
+                    showNotification("Medicamento registrado exitosamente", "success");
+                    document.getElementById("medicineName").value = "";
+                   
+                    loadMedicines();
+                } else {
+                    const error = await response.json();
+                    showNotification("Error: " + error.message, "error");
+                }
+            } catch (error) {
+                showNotification("Error de conexión", "error");
+            }
+        }
+        
+        function renderMedicinesTable() {
+            const tbody = document.querySelector("#medicinesTable tbody");
+            tbody.innerHTML = "";
+            
+            medicines.forEach(medicine => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${medicine.medicineId}</td>
+                    <td>${medicine.medicineName}</td>
+                    
+                    <td>
+                        <button onclick="deleteMedicine(${medicine.id})">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+       // ========== PRESCRIPCIONES ========== //
+async function loadPrescriptions() {
+    console.log("Cargando prescripciones..."); // [1]
+    try {
+        const response = await fetch('http://localhost:8085/prescription');
+
+        console.log("Respuesta de /prescription:", response); // [2]
+        
+        if (!response.ok) {
+            console.error("Error en la respuesta:", response.status, response.statusText);
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        prescriptions = await response.json();
+        console.log("Prescripciones recibidas:", prescriptions); // [3]
+        renderPrescriptionsTable();
+    } catch (error) {
+        console.error("Error al cargar prescripciones:", error); // [4]
+        showNotification("Error cargando prescripciones: " + error, "error");
+    }
+}
+
+function updatePatientDropdown() {
+    console.log("Actualizando dropdown de pacientes. Total pacientes:", patients.length); // [5]
+    const select = document.getElementById("prescriptionPatient");
+    select.innerHTML = '<option value="">Seleccionar paciente</option>';
+    
+    patients.forEach(patient => {
+        console.log("Agregando paciente al dropdown:", patient.patientId, patient.name); // [6]
+        const option = document.createElement("option");
+        option.value = patient.patientId; // Cambiado de patient.id a patient.patientId
+        option.textContent = `${patient.name} (${patient.email})`;
+        select.appendChild(option);
+    });
+}
+
+function updateMedicineDropdown() {
+    console.log("Actualizando dropdown de medicamentos. Total medicamentos:", medicines.length); // [7]
+    const select = document.getElementById("prescriptionMedicine");
+    select.innerHTML = '<option value="">Seleccionar medicamento</option>';
+    
+    medicines.forEach(medicine => {
+        console.log("Agregando medicamento al dropdown:", medicine.medicineId, medicine.medicineName); // [8]
+        const option = document.createElement("option");
+        option.value = medicine.medicineId; // Cambiado de medicine.id a medicine.medicineId
+        option.textContent = `${medicine.medicineName}`;
+        select.appendChild(option);
+    });
+}
+
+async function createPrescription() {
+  const patientId  = Number(document.getElementById("prescriptionPatient").value);
+  const medicineId = Number(document.getElementById("prescriptionMedicine").value);
+  const time  = document.getElementById("prescriptionTime").value;
+  const dose  = document.getElementById("prescriptionDose").value;
+
+  if (!patientId || !medicineId || !time || !dose) {
+      showNotification("Todos los campos son requeridos", "error");
+      return;
+  }
+
+  const body = { patientId, medicineId, schedule: time, dose };
+
+  const res = await fetch("/prescription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+  });
+
+  if (res.ok) { /* éxito */ } else {
+      const err = await res.text();
+      showNotification("Error: " + err, "error");
+  }
+}
+
+function renderPrescriptionsTable() {
+    const tbody = document.querySelector("#prescriptionsTable tbody");
+    tbody.innerHTML = "";
+    
+    prescriptions.forEach(prescription => {
+        // Obtiene nombre de paciente (de varias posibles fuentes)
+        const patientName = prescription.patientName || 
+                    prescription.patient?.name || 
+                    prescription.patient_name || 
+                    (prescription.patientId ? `Paciente ID: ${prescription.patientId}` : 'N/A');
+
+        // Obtiene email de paciente
+        const patientEmail = prescription.patient?.email || prescription.patient_email || '';
+        
+        // Obtiene nombre de medicamento (de varias posibles fuentes)
+        const medicineName = prescription.medicineName ||
+                     prescription.medicine?.medicineName || 
+                     prescription.medicine_medicineName || 
+                     (prescription.medicineId ? `Medicamento ID: ${prescription.medicineId}` : 'N/A');
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${prescription.prescriptionId}</td>
+            <td>${patientName} ${patientEmail ? `(${patientEmail})` : ''}</td>
+            <td>${medicineName}</td>
+            <td>${prescription.schedule || 'N/A'}</td>
+            <td>${prescription.dose || 'N/A'}</td>
+            <td>
+                <button onclick="deletePrescription(${prescription.prescriptionId})">Eliminar</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// ========== RECORDATORIOS ========== //
+        async function loadReminders() {
+            try {
+                const response = await fetch('/record');
+                reminders = await response.json();
+                renderRemindersTable();
+            } catch (error) {
+                showNotification("Error cargando recordatorios: " + error, "error");
+            }
+        }
+        function renderRemindersTable() {
+    const tbody = document.querySelector("#remindersTable tbody");
+    tbody.innerHTML = "";
+    
+    reminders.forEach(reminder => {
+        // Busca la prescripción relacionada
+        const prescription = prescriptions.find(p => p.prescriptionId === reminder.prescriptionId) || {};
+        
+        // Busca paciente y medicamento
+        const patient = patients.find(p => p.patientId === prescription.patient?.patientId) || {};
+        const medicine = medicines.find(m => m.medicineId === prescription.medicine?.medicineId) || {};
+        
+        // Formatea la fecha correctamente
+        const eventDate = reminder.eventDateTime ? 
+            new Date(reminder.eventDateTime).toLocaleString() : 'N/A';
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${reminder.recordId || 'N/A'}</td>
+            <td>${patient.name || 'N/A'}</td>
+            <td>${medicine.medicineName || 'N/A'}</td>
+            <td>${prescription.schedule || 'N/A'}</td>
+            <td>${reminder.status || 'N/A'}</td>
+            <td>${eventDate}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+        // Funciones de eliminación (simuladas)
+        async function deletePatient(id) {
+            if (confirm("¿Estás seguro de eliminar este paciente?")) {
+                showNotification("Función de eliminar no implementada", "error");
+            }
+        }
+        
+        async function deleteMedicine(id) {
+            if (confirm("¿Estás seguro de eliminar este medicamento?")) {
+                showNotification("Función de eliminar no implementada", "error");
+            }
+        }
+        
+        async function deletePrescription(id) {
+            if (confirm("¿Estás seguro de eliminar esta prescripción?")) {
+                showNotification("Función de eliminar no implementada", "error");
+            }
+        }
+    </script>
+</body>
+</html>

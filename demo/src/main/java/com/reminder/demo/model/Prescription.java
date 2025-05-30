@@ -2,12 +2,11 @@ package com.reminder.demo.model;
 
 
 import jakarta.persistence.*;
-import java.sql.Time;
+import java.time.LocalTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 @Entity
 @Table(name = "prescription")
@@ -19,21 +18,27 @@ public class Prescription {
 
     @ManyToOne
     @JoinColumn(name = "patientId", referencedColumnName = "patientId")
+        @JsonUnwrapped(prefix = "patient_")  // Desenvuelve las propiedades
+
     private Patient patient;
 
-    @ManyToOne
+      @ManyToOne(fetch = FetchType.EAGER)  // Asegura carga inmediata
     @JoinColumn(name = "medicineId", referencedColumnName = "medicineId")
+    @JsonUnwrapped(prefix = "medicine_")  // Corregido el nombre
     private Medicin medicine;
 
+    @OneToMany(mappedBy = "prescription")
+    private List<Record> records;
+
     @Column(name = "schedule")
-    private Time schedule;
+    private LocalTime schedule;
 
     @Column(name = "dose")
     private String dose;
 
     public Prescription() {}
 
-    public Prescription(Patient patient, Medicin medicine, Time schedule, String dose) {
+    public Prescription(Patient patient, Medicin medicine, LocalTime schedule, String dose, List<Record> records) {
         this.patient = patient;
         this.medicine = medicine;
         this.schedule = schedule;
@@ -42,6 +47,10 @@ public class Prescription {
 
     public int getPrescriptionId() {
         return prescriptionId;
+    }
+
+    public void setPrescriptionId(int prescriptionId) {
+        this.prescriptionId = prescriptionId;
     }
 
     public Patient getPatient() {
@@ -60,11 +69,11 @@ public class Prescription {
         this.medicine = medicine;
     }
 
-    public Time getSchedule() {
+    public LocalTime getSchedule() {
         return schedule;
     }
 
-    public void setSchedule(Time schedule) {
+    public void setSchedule(LocalTime schedule) {
         this.schedule = schedule;
     }
 
@@ -76,4 +85,11 @@ public class Prescription {
         this.dose = dose;
     }
 
+    public List<Record> getRecords() {
+        return records;
+    }
+
+    public void setRecords(List<Record> records) {
+        this.records = records;
+    }
 }

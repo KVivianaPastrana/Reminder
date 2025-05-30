@@ -3,11 +3,11 @@ import java.sql.Time;
 import java.util.Date;
 public class RecordDTO {
     private int  recordId;
-    private int prescriptionId;
+    private Integer prescriptionId;
     private Date eventDate;
     private Time eventTime;
     private String eventType;
-    public RecordDTO(int recordId, int prescriptionId, Date eventDate, Time eventTime, String eventType) {
+    public RecordDTO(int recordId, Integer prescriptionId, Date eventDate, Time eventTime, String eventType) {
         this.recordId = recordId;
         this.prescriptionId = prescriptionId;
         this.eventDate = eventDate;
@@ -22,10 +22,10 @@ public class RecordDTO {
     public void setRecordId(int recordId) {
         this.recordId = recordId;
     }
-    public int getPrescriptionId() {
+    public Integer getPrescriptionId() {
         return prescriptionId;
     }
-    public void setPrescriptionId(int prescriptionId) {
+    public void setPrescriptionId(Integer prescriptionId) {
         this.prescriptionId = prescriptionId;
     }
     public Date getEventDate() {
