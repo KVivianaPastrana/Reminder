@@ -433,12 +433,13 @@
                 tbody.appendChild(tr);
             });
         }
+
         
        // ========== PRESCRIPCIONES ========== //
 async function loadPrescriptions() {
     console.log("Cargando prescripciones..."); // [1]
     try {
-        const response = await fetch('http://localhost:8085/prescription');
+        const response = await fetch('/prescription');
 
         console.log("Respuesta de /prescription:", response); // [2]
         

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.reminder.demo.service.EmailService;
 import com.reminder.demo.service.PrescriptionService;
 import com.reminder.demo.model.Medicin;
 import com.reminder.demo.model.Patient;
@@ -18,6 +19,11 @@ import com.reminder.demo.DTO.ResponseDTO;
 import com.reminder.demo.repository.Imedicine;
 import com.reminder.demo.repository.Ipatient;
 import com.reminder.demo.repository.Iprescription;
+import com.reminder.demo.service.EmailService;
+import com.reminder.demo.service.PrescriptionService;
+import java.util.Optional;
+
+
 @RestController
 @RequestMapping("/prescription")
 
@@ -31,6 +37,9 @@ public class PrescriptionController {
     private Imedicine medicineRepository;
     @Autowired
     private Iprescription prescriptionRepository;
+    @Autowired
+private EmailService emailService;
+
 @GetMapping
 public ResponseEntity<List<PrescriptionDTO>> list() {
     return ResponseEntity.ok(prescriptionService.getAllPrescriptionDTOs());
@@ -47,7 +56,23 @@ public ResponseEntity<List<PrescriptionDTO>> list() {
         }
     }
 
-@PostMapping
+    @GetMapping("/confirm/{id}")
+public ResponseEntity<String> confirmarToma(@PathVariable int id) {
+    Optional<Prescription> opt = prescriptionRepository.findById(id);
+    if (opt.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Prescripción no encontrada");
+    }
+    Prescription p = opt.get();
+    if (p.isConfirmed()) {
+        return ResponseEntity.ok("Ya habías confirmado la toma anteriormente.");
+    }
+    p.setConfirmed(true);
+    prescriptionRepository.save(p);
+    return ResponseEntity.ok("¡Gracias! Se confirmó la toma del medicamento.");
+}
+
+
+    @PostMapping
 public ResponseEntity<?> createPrescription(@RequestBody PrescriptionDTO dto) {
 
     // 1. Validaciones de existencia
@@ -66,10 +91,14 @@ public ResponseEntity<?> createPrescription(@RequestBody PrescriptionDTO dto) {
     p.setPatient(patient);
     p.setMedicine(medicine);
     p.setSchedule(dto.getSchedule());
-// HH:mm
     p.setDose(dto.getDose());
 
+    // 3. Guardar en la base de datos
     Prescription saved = prescriptionRepository.save(p);
+
+   
+
+    // 5. Responder
     return ResponseEntity.status(HttpStatus.CREATED)
                          .body(prescriptionService.convertToDTO(saved));
 }
@@ -79,6 +108,7 @@ public ResponseEntity<?> createPrescription(@RequestBody PrescriptionDTO dto) {
         ResponseDTO respuesta = prescriptionService.updatePrescription(prescriptionId, prescriptionDTO);
         return new ResponseEntity<>(respuesta, HttpStatus.OK);
     }
+
 
     @DeleteMapping("/{prescriptionId}")
     public ResponseEntity<Object> deletePrescription(@PathVariable int prescriptionId) {
